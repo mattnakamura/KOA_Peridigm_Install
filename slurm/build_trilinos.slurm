@@ -9,7 +9,7 @@
 #SBATCH --output=./output_logs/trilinos_parallel_netcdf_%j.out
 #SBATCH --error=./output_logs/trilinos_parallel_netcdf_%j.err
 
-echo "=== Building Trilinos with Parallel NetCDF ==="
+echo "=== Building Trilinos with Parallel NetCDF (GCC 11.3.0) ==="
 echo "Started at $(date)"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -18,14 +18,14 @@ echo "Current directory: $(pwd)"
 # Set up paths - PORTABLE using SLURM submit directory
 BASE_DIR="${SLURM_SUBMIT_DIR}"
 
-# Load only the basic compiler toolchain
-echo "Loading base modules..."
+# Load modules with correct GCC 11.3.0 versions
+echo "Loading base modules with GCC 11.3.0..."
 module purge
-module load compiler/GCC/13.2.0
-module load mpi/OpenMPI/4.1.6-GCC-13.2.0
-module load devel/CMake/3.27.6-GCCcore-13.2.0
-module load devel/Boost/1.83.0-GCC-13.2.0
-module load numlib/OpenBLAS/0.3.24-GCC-13.2.0
+module load compiler/GCC/11.3.0
+module load mpi/OpenMPI/4.1.4-GCC-11.3.0
+module load devel/CMake/3.24.3-GCCcore-11.3.0
+module load devel/Boost/1.79.0-GCC-11.3.0
+module load numlib/OpenBLAS/0.3.20-GCC-11.3.0
 
 # Set compiler variables
 export CC=mpicc
@@ -37,7 +37,7 @@ export F77=mpif90
 echo "=== Sourcing Parallel NetCDF Environment ==="
 source "$BASE_DIR/software/install/setup_parallel_netcdf_env.sh"
 
-# Explicitly set NetCDF environment (should be set by sourcing, but making sure)
+# Explicitly set NetCDF environment
 export NETCDF_ROOT="$BASE_DIR/software/install"
 export HDF5_ROOT="$BASE_DIR/software/install"
 export PATH="$NETCDF_ROOT/bin:$PATH"
@@ -48,6 +48,7 @@ echo "=== Environment Check ==="
 echo "CC: $CC"
 echo "CXX: $CXX"
 echo "FC: $FC"
+echo "GCC Version: $(gcc --version | head -1)"
 echo "OpenMPI: $EBROOTOPENMPI"
 echo "Boost: $EBROOTBOOST"
 echo "OpenBLAS: $EBROOTOPENBLAS"
@@ -57,14 +58,8 @@ echo "NetCDF: $NETCDF_ROOT"
 echo "=== Verifying NetCDF Installation ==="
 echo "nc-config location: $(which nc-config)"
 if [ -f "$NETCDF_ROOT/bin/nc-config" ]; then
-    echo "NetCDF version:"
-    $NETCDF_ROOT/bin/nc-config --version
-    echo "HDF5 support:"
-    $NETCDF_ROOT/bin/nc-config --has-hdf5
-    echo "Parallel support:"
-    $NETCDF_ROOT/bin/nc-config --has-parallel
-    echo "NetCDF configuration:"
-    $NETCDF_ROOT/bin/nc-config --all
+    echo "NetCDF version: $($NETCDF_ROOT/bin/nc-config --version)"
+    echo "Parallel support: $($NETCDF_ROOT/bin/nc-config --has-parallel)"
 else
     echo "ERROR: NetCDF not found at $NETCDF_ROOT"
     exit 1
@@ -72,11 +67,8 @@ fi
 
 # Check if parallel support is enabled
 PARALLEL_SUPPORT=$($NETCDF_ROOT/bin/nc-config --has-parallel)
-echo "NetCDF parallel support result: '$PARALLEL_SUPPORT'"
 if [ "$PARALLEL_SUPPORT" != "yes" ]; then
     echo "ERROR: NetCDF does not have parallel support enabled!"
-    echo "Expected 'yes', got '$PARALLEL_SUPPORT'"
-    echo "You may need to rebuild NetCDF with --enable-parallel-tests"
     exit 1
 fi
 
@@ -103,20 +95,16 @@ cd "$TRILINOS_BUILD_DIR"
 
 # Clean previous build safely
 echo "Cleaning previous build..."
-echo "Current directory: $(pwd)"
-echo "Expected directory: $TRILINOS_BUILD_DIR"
 if [ "$(pwd)" = "$TRILINOS_BUILD_DIR" ] && [[ "$(pwd)" == *"/software/build/trilinos" ]]; then
     echo "Safe to clean - removing CMake files and build artifacts"
     rm -rf CMakeCache.txt CMakeFiles/ Makefile *.cmake install_manifest.txt
 else
     echo "ERROR: Directory mismatch. Not cleaning to prevent data loss."
-    echo "Current: $(pwd)"
-    echo "Expected: $TRILINOS_BUILD_DIR"
     exit 1
 fi
 
-# Configure Trilinos with parallel NetCDF
-echo "--- Configuring Trilinos with SEACAS/ExodusII support (PARALLEL NetCDF) ---"
+# Configure Trilinos with parallel NetCDF - FULL BUILD with Teuchos
+echo "--- Configuring Trilinos with SEACAS/ExodusII (FULL BUILD with Teuchos) ---"
 cmake \
   -D CMAKE_INSTALL_PREFIX=$TRILINOS_INSTALL_DIR \
   -D CMAKE_BUILD_TYPE=RELEASE \
