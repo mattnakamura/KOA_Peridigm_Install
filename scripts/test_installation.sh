@@ -165,4 +165,4 @@ echo "   Trilinos: $([ -f "$INSTALL_DIR/trilinos/lib/cmake/Trilinos/TrilinosConf
 echo "   Peridigm: $([ -f "$INSTALL_DIR/peridigm/bin/Peridigm" ] && echo "✅ OK" || echo "❌ Missing")"
 
 echo ""
-echo "For detailed status: ./check_build_status.sh"
+echo "For detailed status: ./scripts/check_build_status.sh"

@@ -123,4 +123,4 @@ du -sh . | cut -f1
 echo ""
 echo "✅ Source download complete!"
 echo ""
-echo "Next step: Run ./master_build.sh to start the build pipeline"
+echo "Next step: Run ./scripts/master_build.sh to start the build pipeline"

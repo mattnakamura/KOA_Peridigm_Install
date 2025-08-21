@@ -52,6 +52,6 @@ chmod +x ./load_modules.sh
 echo "✅ Environment setup complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Run: ./download_sources.sh"
-echo "  2. Then: ./master_build.sh"
+echo "  1. Run: ./scripts/download_sources.sh"
+echo "  2. Then: ./scripts/master_build.sh"
 

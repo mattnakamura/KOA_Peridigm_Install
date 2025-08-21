@@ -205,7 +205,7 @@ if [ -f "$INSTALL_PREFIX/bin/h5pcc" ]; then
 fi
 echo ""
 echo "Next steps:"
-echo "1. Build NetCDF with: sbatch build_netcdf_with_parallel_hdf5.slurm"
+echo "1. Build NetCDF with: sbatch ./slurm/build_netcdf_with_parallel_hdf5.slurm"
 echo "2. Then build Trilinos"
 echo ""
 echo "To use this HDF5:"
