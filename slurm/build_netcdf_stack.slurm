@@ -113,6 +113,7 @@ echo "Configuring NetCDF-C with parallel support..."
     --enable-hdf5 \
     --enable-parallel4 \
     --disable-dap \
+    --disable-curl \
     CPPFLAGS="-I$INSTALL_PREFIX/include" \
     LDFLAGS="-L$INSTALL_PREFIX/lib" \
     CC=mpicc
